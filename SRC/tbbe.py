@@ -4,7 +4,7 @@ from pygments.lexers import CppLexer
 from pygments.formatters import HtmlFormatter
 import os
 
-def analyze_tbbe(source_code, filename):
+def analyze_tbbe(filename):
     def find_if_statements_in_node(node, function_args):
         arg_in_if_statement = False
         if node.kind == clang.cindex.CursorKind.IF_STMT:
@@ -35,10 +35,8 @@ def analyze_tbbe(source_code, filename):
             find_functions_with_args_in_if_statements(child, filename, lines_to_comment)
 
     index = clang.cindex.Index.create()
-    with open(filename, 'w') as temp_file:  # Write source code to a temporary file
-        temp_file.write(source_code)
         
-    translation_unit = index.parse(filename)  # Parse the temporary file
+    translation_unit = index.parse(filename)  # Parse the file
     if translation_unit.diagnostics:
         for diag in translation_unit.diagnostics:
             print("Diagnostic:", diag)

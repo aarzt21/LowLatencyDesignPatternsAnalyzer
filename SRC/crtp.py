@@ -1,6 +1,6 @@
 import clang.cindex
 
-def analyze_crtp(source_code, filename):
+def analyze_crtp(filename):
     def find_virtual_functions(node, filename):
         result = []
         if node.location.file and node.location.file.name == filename:
@@ -36,7 +36,7 @@ def analyze_crtp(source_code, filename):
 
     index = clang.cindex.Index.create()
 
-    translation_unit = index.parse(filename, unsaved_files=[(filename, source_code)])
+    translation_unit = index.parse(filename)
 
     tu_cursor = translation_unit.cursor
     virtual_funcs = find_virtual_functions(tu_cursor, filename)

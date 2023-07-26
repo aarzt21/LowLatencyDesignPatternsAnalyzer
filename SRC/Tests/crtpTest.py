@@ -25,12 +25,15 @@ class TestAnalyzeCrtp(unittest.TestCase):
         }
         """
 
-        # Call the function with the test code
-        return analyze_crtp(test_code, 'dummy.cpp')
+        with open("DummyCode/dummyCRTP.cpp", "w") as file:
+            file.write(test_code)
 
+        expected_out = {3: "WARNING: Virtual method 'foo()'. Consider using the Curiously Recurring Template Pattern (CRTP) instead.", 7: "WARNING: Virtual method 'foo()'. Consider using the Curiously Recurring Template Pattern (CRTP) instead.", 
+                        12: "WARNING: Virtual method 'foo'. Consider using the Curiously Recurring Template Pattern (CRTP) instead."}
+        out = analyze_crtp("DummyCode/dummyCRTP.cpp")
+        self.assertEqual(out, expected_out)
 
         
 
 if __name__ == '__main__':
-    obj = TestAnalyzeCrtp()
-    print(obj.test_analyze_crtp())
+    unittest.main()
