@@ -1,0 +1,17 @@
+        -:    0:Source:dummyDOD.cpp
+        -:    0:Graph:outDOD-dummyDOD.gcno
+        -:    0:Data:outDOD-dummyDOD.gcda
+        -:    0:Runs:1
+        -:    1:#include "dummyDOD.h"
+        -:    2:
+        -:    3:
+        1:    4:Bar::Bar(): count(100), status(1) {};
+        -:    5:
+    10000:    6:int Bar::get_count(){
+    10000:    7:    return count; 
+        -:    8:}
+        -:    9:
+        -:   10:
+    #####:   11:int Bar::get_status(){
+    #####:   12:    return status; 
+        -:   13:}
