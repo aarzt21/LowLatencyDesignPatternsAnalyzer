@@ -4,16 +4,47 @@ sys.path.append("../SRC")
 from tbbe import analyze_tbbe
 from crtp import analyze_crtp
 from coldCode import analyze_coldCode
+from dod import analyze_dod
 import os
 
 import customtkinter as ctk
 import subprocess
 from pygments import highlight
+import time
 from pygments.lexers import CppLexer
 from pygments.formatters import HtmlFormatter
 from tkinter import filedialog, END, StringVar, BooleanVar
 import glob
 import shutil
+
+
+html_code = """<html><head>
+                <style>
+                body {
+                    display: flex;
+                    justify-content: center;
+                    align-items: center;
+                    height: 100vh;
+                    margin: 0;
+                    background-color: #f3f3f3;
+                    font-family: Arial, sans-serif;
+                }
+                table {
+                    border-collapse: collapse;
+                    width: 80%;
+                    max-width: 900px;
+                }
+                th, td {
+                    border: 1px solid #dddddd;
+                    text-align: left;
+                    padding: 8px;
+                }
+                tr:nth-child(even) {
+                    background-color: #dddddd;
+                }
+                </style>
+                </head><body><table><tr><th>File</th><th>Class</th><th>Hot Attribute</th><th>Access Count</th></tr>"""
+
 
 
 
@@ -46,6 +77,9 @@ def transform_path(path):
 
 def open_directory_dialog():
     dirname = filedialog.askdirectory()
+    if not dirname:
+        return
+    
     dir_entry.delete(0, END)
     dir_entry.insert(0, dirname)
 
@@ -69,6 +103,17 @@ def open_directory_dialog():
 
 
 def compile_and_run_code():
+    
+    if not dir_entry.get():
+        output_text.delete("1.0", "end")  
+        output_text.insert("end", "Please select a C++ project first.")
+        return
+    else:
+        output_text.delete("1.0", "end") 
+        output_text.insert("end", "Running ==========================")
+        app.update_idletasks()  # Update GUI
+
+
     directory = dir_entry.get()
     main_file = os.path.join(directory, main_file_combobox.get())
     additional_files = [os.path.join(directory, switch.cget(
@@ -86,8 +131,10 @@ def compile_and_run_code():
     output_text.delete("1.0", "end")
     if stdout:
         output_text.insert("end", stdout.decode())
+        app.update_idletasks()
     if stderr:
         output_text.insert("end", stderr.decode())
+        app.update_idletasks()
 
     # use the path to the executable here as well
     process = subprocess.Popen(
@@ -95,8 +142,10 @@ def compile_and_run_code():
     stdout, stderr = process.communicate()
     if stdout:
         output_text.insert("end", stdout.decode())
+        app.update_idletasks()
     if stderr:
         output_text.insert("end", stderr.decode())
+        app.update_idletasks()
 
     # Generate gcov files and move them to COVERAGE_OUT directory
     coverage_out_dir = os.path.join(directory, 'COVERAGE_OUT')
@@ -137,6 +186,22 @@ def compile_and_run_code():
     html_out_dir = os.path.join(directory, 'HTML_OUT')
     os.makedirs(html_out_dir, exist_ok=True)
 
+    if dod_var.get():
+        html_file = os.path.join(html_out_dir, 'hot_attributes.html')
+        with open(html_file, 'w') as f:
+            f.write(html_code)
+
+            for file in additional_files:
+                gcov_file = transform_path(file)
+                hot_attributes = analyze_dod(file, gcov_file, factor=2)
+
+                for class_name, attributes in hot_attributes.items():
+                    for attr, count in attributes:
+                        f.write(f"<tr><td>{file}</td><td>{class_name}</td><td>{attr}</td><td>{count}</td></tr>")
+
+            f.write("</table></body></html>")
+
+
     files_to_analyze = [main_file] + additional_files
     for file in files_to_analyze:
         with open(file, 'r') as f:
@@ -167,6 +232,7 @@ def compile_and_run_code():
 
         with open(html_file, 'w') as f:
             f.write(formatted_code)
+
 
 
 ctk.set_appearance_mode("dark")
@@ -210,7 +276,7 @@ top_middle_frame = ctk.CTkFrame(master=top_frame)
 top_middle_frame.pack(side="left", fill="both", expand=True)
 
 additional_files_label = ctk.CTkLabel(
-    master=top_middle_frame, text="Additional C++ Source Files:", font=("Arial", 20, 'bold'))
+    master=top_middle_frame, text="Additional C++ Source Files", font=("Arial", 20, 'bold'))
 additional_files_label.pack(pady=10, padx=10)
 
 additional_files_switches = []
@@ -258,12 +324,17 @@ button_1.grid(row=4, column=0, pady=(10, 10), padx=10, ipady=10, sticky="w")
 
 
 
+border_frame = ctk.CTkFrame(master=main_frame, fg_color="grey43", height=2, width = 1100)
+border_frame.pack(pady=(1, 1))
+
+
 bottom_frame = ctk.CTkFrame(master=main_frame)
 bottom_frame.pack(side="bottom", fill="both", expand=True)
 
 stdout_label = ctk.CTkLabel(
-    master=bottom_frame, text="Std Out:", font=("Arial", 20, 'bold'))
-stdout_label.pack(pady=(10, 10), padx=10, anchor='w')
+    master=bottom_frame, text="Std Out", font=("Arial", 20, 'bold'))
+stdout_label.pack(pady=(20, 10), padx=10, anchor='center')
+
 
 output_text = ctk.CTkTextbox(
     master=bottom_frame, width=400, height=140, font=("Arial", 20))
