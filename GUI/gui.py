@@ -80,6 +80,8 @@ def open_directory_dialog():
     if not dirname:
         return
     
+    progress_bar.set(0)
+
     dir_entry.delete(0, END)
     dir_entry.insert(0, dirname)
 
@@ -103,7 +105,7 @@ def open_directory_dialog():
 
 
 def compile_and_run_code():
-    
+
     if not dir_entry.get():
         output_text.delete("1.0", "end")  
         output_text.insert("end", "Please select a C++ project first.")
@@ -111,8 +113,9 @@ def compile_and_run_code():
     else:
         output_text.delete("1.0", "end") 
         output_text.insert("end", "Running ==========================")
-        app.update_idletasks()  # Update GUI
+        app.update_idletasks()  
 
+    progress_bar.set(0)
 
     directory = dir_entry.get()
     main_file = os.path.join(directory, main_file_combobox.get())
@@ -128,12 +131,12 @@ def compile_and_run_code():
         cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
 
-    output_text.delete("1.0", "end")
+   
     if stdout:
-        output_text.insert("end", stdout.decode())
+        output_text.insert("end", "\n" + stdout.decode())
         app.update_idletasks()
     if stderr:
-        output_text.insert("end", stderr.decode())
+        output_text.insert("end", "\n" + stderr.decode())
         app.update_idletasks()
 
     # use the path to the executable here as well
@@ -141,10 +144,10 @@ def compile_and_run_code():
         executable_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     stdout, stderr = process.communicate()
     if stdout:
-        output_text.insert("end", stdout.decode())
+        output_text.insert("end", "\n\nStandard Out: \n \t" + stdout.decode())
         app.update_idletasks()
     if stderr:
-        output_text.insert("end", stderr.decode())
+        output_text.insert("end", "\n" + stderr.decode())
         app.update_idletasks()
 
     # Generate gcov files and move them to COVERAGE_OUT directory
@@ -172,8 +175,7 @@ def compile_and_run_code():
         process = subprocess.Popen(
             cmd, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
-        if stdout:
-            output_text.insert("end", stdout.decode())
+
         if stderr:
             output_text.insert("end", stderr.decode())
 
@@ -185,6 +187,16 @@ def compile_and_run_code():
 
     html_out_dir = os.path.join(directory, 'HTML_OUT')
     os.makedirs(html_out_dir, exist_ok=True)
+
+
+    files_to_analyze = [main_file] + additional_files
+
+    total_files_to_process = len(files_to_analyze) * (crtp_var.get() or tbbe_var.get() or cci_check.get())
+    if dod_var.get():
+        total_files_to_process += len(additional_files)
+    
+    processed_files = 0
+
 
     if dod_var.get():
         html_file = os.path.join(html_out_dir, 'hot_attributes.html')
@@ -198,11 +210,13 @@ def compile_and_run_code():
                 for class_name, attributes in hot_attributes.items():
                     for attr, count in attributes:
                         f.write(f"<tr><td>{file}</td><td>{class_name}</td><td>{attr}</td><td>{count}</td></tr>")
+                processed_files += 1
+                progress_percentage = (processed_files / total_files_to_process) 
+                progress_bar.set(progress_percentage)
+                app.update_idletasks()
 
             f.write("</table></body></html>")
-
-
-    files_to_analyze = [main_file] + additional_files
+        
     
     for file in files_to_analyze:
 
@@ -234,17 +248,24 @@ def compile_and_run_code():
 
         with open(html_file, 'w') as f:
             f.write(formatted_code)
-    
         
-    output_text.insert("end", "\nDone ==========================")
-    app.update_idletasks()
+        processed_files += 1
+        progress_percentage = (processed_files / total_files_to_process) 
+        progress_bar.set(progress_percentage)
+        app.update_idletasks()
+    
+
+    output_text.insert("end", "\nAnalysis Done ======================")
+    app.update_idletasks()  
+    
+    
 
 
 ctk.set_appearance_mode("dark")
 ctk.set_default_color_theme("blue")
 
 app = ctk.CTk()
-app.geometry("1100x900")
+app.geometry("1100x1000")
 app.title("C++ Low Latency Design Patterns Analyzer")
 
 main_frame = ctk.CTkFrame(master=app)
@@ -332,13 +353,24 @@ button_1.grid(row=4, column=0, pady=(10, 10), padx=10, ipady=10, sticky="w")
 border_frame = ctk.CTkFrame(master=main_frame, fg_color="grey43", height=2, width = 1100)
 border_frame.pack(pady=(1, 1))
 
+status_frame = ctk.CTkFrame(master=main_frame)
+status_frame.pack(side="top", fill="both", expand=False, pady=(30, 30))
+
+status_label = ctk.CTkLabel(
+    master=status_frame, text="Progress", font=("Arial", 20, 'bold'))
+status_label.pack(pady=(20, 10), padx=10, anchor='w')
+
+
+progress_bar = ctk.CTkProgressBar(master=status_frame)
+progress_bar.set(0)
+progress_bar.pack(pady=20, padx=20, fill="both", expand=False)
 
 bottom_frame = ctk.CTkFrame(master=main_frame)
 bottom_frame.pack(side="bottom", fill="both", expand=True)
 
 stdout_label = ctk.CTkLabel(
-    master=bottom_frame, text="Std Out", font=("Arial", 20, 'bold'))
-stdout_label.pack(pady=(20, 10), padx=10, anchor='center')
+    master=bottom_frame, text="Output", font=("Arial", 20, 'bold'))
+stdout_label.pack(pady=(20, 10), padx=10, anchor='w')
 
 
 output_text = ctk.CTkTextbox(
