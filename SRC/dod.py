@@ -28,7 +28,7 @@ def analyze_dod(filename, gcov_filename, factor=2):
                     continue
                 
                 if function_part.startswith(('get_', 'set_')):
-                    attribute_name = function_part.split('_')[-1].rstrip('()')
+                    attribute_name = function_part.split('_')[-1].split('(')[0]
                     class_attribute_counts[class_name][attribute_name] += count
 
     # Add comment
