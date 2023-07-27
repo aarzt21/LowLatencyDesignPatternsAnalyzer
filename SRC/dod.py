@@ -31,7 +31,6 @@ def analyze_dod(filename, gcov_filename, factor=2):
                     attribute_name = function_part.split('_')[-1].split('(')[0]
                     class_attribute_counts[class_name][attribute_name] += count
 
-    # Add comment
     for class_name, attribute_counts in class_attribute_counts.items():
         min_count = min(attribute_counts.values())
         frequently_accessed_attributes = [(attribute, count) for attribute, count in attribute_counts.items() if count > factor * min_count]
