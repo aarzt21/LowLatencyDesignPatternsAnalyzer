@@ -203,8 +203,9 @@ def compile_and_run_code():
 
 
     files_to_analyze = [main_file] + additional_files
+    
     for file in files_to_analyze:
-        print(file)
+
         with open(file, 'r') as f:
             source_code = f.read()
 
