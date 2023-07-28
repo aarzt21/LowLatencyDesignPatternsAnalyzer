@@ -255,7 +255,7 @@ def compile_and_run_code():
         app.update_idletasks()
     
 
-    output_text.insert("end", "\nAnalysis Done ======================")
+    output_text.insert("end", "\nAnalysis Done =====================")
     app.update_idletasks()  
     
     
