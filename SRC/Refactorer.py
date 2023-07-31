@@ -1,5 +1,6 @@
 from clang.cindex import Index, CursorKind, AccessSpecifier, TypeKind
 from bs4 import BeautifulSoup
+import openai
 
 access_specifier_map = {
     AccessSpecifier.INVALID: 'INVALID',
@@ -8,9 +9,175 @@ access_specifier_map = {
     AccessSpecifier.PRIVATE: 'private:'
 }
 
+
+designPatterns = """
+                //Pattern 1
+
+/* This is the cold code isolation pattern: Assume we have  a function that hot code and cold code  */
+
+int foo(std::vector<int>& vec){
+	int sum = 0; 
+	for (int i = 0;  i < vec.size(); i++){
+		int e =  vec[i];
+		if (/*some rare condition*/ ) {
+			/*execute some large code block*/
+		}
+		
+		else sum += e; 
+	}
+	return sum; 
+}
+
+
+/*Now isolate the cold code by putting it into a separate function so that foo only contains hot code*/
+
+void edgeCaseHandler(){/*large code block*/}
+
+int foo(std::vector<int>& vec){
+	int sum = 0; 
+	for (int i = 0;  i < vec.size(); i++){
+		int e =  vec[i];
+		if (/*some rare condition*/ ) edgeCaseHandle();
+		else sum += e; 
+	}
+	return sum; 
+}
+
+
+//Another Example: 
+
+// hot code before ...
+if (checkForErrorA()) // cold code starts
+    //medium-sized code block
+else if (checkForErrorB())
+    //medium-sized code block
+else if (checkForErrorC())
+    //medium-sized code block
+else
+    sendOrderToExchange(); // hot code again
+    
+//make the code more i-cache friendly by refactoring it such that the cold code is removed
+
+int errorFlags;
+//...
+if (!errorFlags)//hot code continous until here
+    sendOrderToExchange(); 
+else 
+    HandleError(errorFlags);
+    
+    
+
+    
+    
+ //Pattern 2: Template Based Branch eliminiation pattern
+//non-templated version with Branches
+float foo_slow(std::vector<int>& vec, bool include_negatives) {
+    int len = vec.size();
+    int average = 0;
+    int count = 0;
+    for (int i = 0; i < len; i++)
+    {
+        if (include_negatives) {
+            average += vec[i];
+        }
+        else
+        {
+            int e = abs(vec[i]);
+            average += e;
+            count++;
+        }
+
+    }
+
+    if (include_negatives)
+        return average / len;
+    else
+        return average / count;
+}
+
+
+//now since the value of include_negatives is known at compile time, 
+//we can eliminate the branches using templates, i.e. apply the Template Based Branch Elimination Pattern: 
+//TB Version without branches
+template <bool include_negatives>
+float foo_fast(std::vector<int>& vec) {
+    int len = vec.size();
+    int average = 0;
+    int count = 0;
+    for (int i = 0; i < len; i++) {
+        if (include_negatives)
+        {
+            average += vec[i];
+        }
+        else
+        {
+            int e = abs(vec[i]);
+            average += e;
+            count++;
+        }
+    }
+
+    if (include_negatives)
+        return average / len;
+
+    else
+        return average / count;
+}
+    
+    
+//Pattern 3: The CRTP 
+//instead of using virtual functions:     
+    //regular OOP-Variant
+class Base {
+protected:
+    int counter;
+public:
+    Base(): counter(0) {};
+    virtual void inc(){counter += 1;}
+    int getCounter(){return counter;}
+};
+
+class Special: public Base {
+public:
+    void inc() override {counter += 2;}
+};
+
+//would result in dynamic function dispatch
+Special* spec = new Special; 
+spec->inc();
+
+
+// we employ the CRTP
+//CRTP ---------
+template <typename Derived>
+class CRTPTemplate {
+protected:
+    int counter;
+public:
+    CRTPTemplate() : counter(0) {}
+    void inc(){static_cast<Derived*>(this)->inc();}
+    int getCounter(){return counter;}
+};
+
+class SpecialCRTP: public CRTPTemplate<SpecialCRTP> {
+public:
+    void inc() { counter = counter + 2;}
+};
+
+//would result in static function dispatch
+Special* specCRTP = new SpecialCRTP(); 
+specCRTP->inc();
+
+                 """
+
+
+
+
+
+
 class Refactor:
     def __init__(self, apiKey):
-        self.apiKey = apiKey
+        self.apiKey = "X"
 
     def generateCppFile(self, cpp_file, h_file, output_file):
         index = Index.create()
@@ -96,3 +263,24 @@ class Refactor:
 
         with open(outfilename, "w") as f:
             f.write(cpp_code)
+
+    def send_prompt_to_cgpt(self, cppFile):
+        
+        openai.api_key = self.apiKey
+        
+        cppCode = ""
+        with open("DummyCode/final.cpp", "r") as f:
+            for line in f.readlines():
+                cppCode += line
+
+        response = openai.ChatCompletion.create(
+        model="gpt-3.5-turbo",
+        messages=[
+                {"role": "system", "content": "You are a code refactoring assistant. Given some C++ code with certain comments, \
+                    your task is refactor the code by implementing the design pattern suggestions written in the comments of the C++ code. \
+                    Your response should only consist of the C++ code and nothing else."},
+                {"role": "user", "content": cppCode},
+            ]
+        )
+
+        return response.choices[0].message['content']
