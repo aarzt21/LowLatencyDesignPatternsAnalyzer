@@ -303,7 +303,7 @@ top_middle_frame.pack(side="left", fill="both", expand=True)
 
 additional_files_label = ctk.CTkLabel(
     master=top_middle_frame, text="Additional C++ Source Files", font=("Arial", 20, 'bold'))
-additional_files_label.pack(pady=10, padx=10)
+additional_files_label.pack(pady=(20,5), padx=10, fill = "both")
 
 additional_files_switches = []
 
