@@ -1,1 +1,5 @@
 GUI/example.py
+.vscode
+GUI/__pycache__
+SRC/__pycache__
+SRC/.idea

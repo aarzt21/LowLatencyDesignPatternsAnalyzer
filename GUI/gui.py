@@ -51,7 +51,7 @@ html_code = """<html><head>
 def comment_checker(comments, new_comments):
     for line, comment in new_comments.items():
         if line in comments:
-            comments[line] += '\n //' + comment
+            comments[line] += '\n//' + comment
         else:
             comments[line] = comment
     return comments
@@ -238,7 +238,7 @@ def compile_and_run_code():
 
         source_lines = source_code.split('\n')
         for line, comment in sorted(comments.items(), reverse=True):
-            source_lines.insert(line - 1, f"// {comment}\n")
+            source_lines.insert(line-1 , f"// {comment}")
         new_source_code = '\n'.join(source_lines)
 
         html_file = os.path.join(
@@ -255,7 +255,7 @@ def compile_and_run_code():
         app.update_idletasks()
     
 
-    output_text.insert("end", "\nAnalysis Done =====================")
+    output_text.insert("end", "\nAnalysis Done ======================")
     app.update_idletasks()  
     
     
@@ -318,7 +318,7 @@ top_right_frame.grid_columnconfigure(0, weight=1)
 top_right_frame.grid_columnconfigure(1, weight=1)
 
 
-# Configure grid
+
 for i in range(5):
     top_right_frame.grid_rowconfigure(i, weight=1)
 
@@ -332,21 +332,21 @@ tbbe_check = ctk.CTkCheckBox(
     master=top_right_frame, text='TBBE', variable=tbbe_var, font=("Arial", 22))
 tbbe_check.grid(row=1, column=0, padx=10, pady=(0, 0), sticky="w")
 
-# Cold Code Isolation checkbox
+
 cci_var = BooleanVar()
 cci_check = ctk.CTkCheckBox(
     master=top_right_frame, text='Cold Code Isolation', variable=cci_var, font=("Arial", 22))
 cci_check.grid(row=2, column=0, padx=10, pady=(0, 0), sticky="w")
 
-# Added DOD checkbox
+
 dod_var = BooleanVar()
 dod_check = ctk.CTkCheckBox(
     master=top_right_frame, text='DOD', variable=dod_var, font=("Arial", 22))
 dod_check.grid(row=3, column=0, padx=10, pady=(0, 10), sticky="w")
 
 button_1 = ctk.CTkButton(master=top_right_frame, command=compile_and_run_code,
-                         text="Compile and Run", font=("Arial", 20))
-button_1.grid(row=4, column=0, pady=(10, 10), padx=10, ipady=10, sticky="w")
+                         text="Analyze", font=("Arial", 20, "bold"))
+button_1.grid(row=4, column=0, pady=(30, 30), padx=30, ipady=10, sticky="w")
 
 
 

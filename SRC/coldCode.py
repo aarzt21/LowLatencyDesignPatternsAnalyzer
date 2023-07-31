@@ -37,15 +37,17 @@ def analyze_coldCode(filename, coverage_filename, relative_threshold=0.3):
         cold_blocks = []
         for if_line, then_block in data.items():
             if_exec_count = coverage_data[if_line]
-
+   
             then_exec_counts = []
             for line in range(then_block[0], then_block[1]+1):
                 if line == if_line: continue
                 then_exec_counts.append(coverage_data[line])
 
             max_then_exec_count = max(then_exec_counts) if then_exec_counts else 0
-
-            if if_exec_count == 0: continue
+            
+            #edge cases
+            if if_exec_count == 0 or if_exec_count == 1 : continue
+            
             perc = max_then_exec_count / if_exec_count
 
             if perc < relative_threshold:
