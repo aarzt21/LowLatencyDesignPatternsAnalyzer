@@ -11,10 +11,7 @@ access_specifier_map = {
 
 
 designPatterns = """
-                //Pattern 1
-
-/* This is the cold code isolation pattern: Assume we have  a function that hot code and cold code  */
-
+//Pattern 1: Cold Code isolation pattern ----------------------------------
 int foo(std::vector<int>& vec){
 	int sum = 0; 
 	for (int i = 0;  i < vec.size(); i++){
@@ -27,7 +24,6 @@ int foo(std::vector<int>& vec){
 	}
 	return sum; 
 }
-
 
 /*Now isolate the cold code by putting it into a separate function so that foo only contains hot code*/
 
@@ -43,33 +39,7 @@ int foo(std::vector<int>& vec){
 	return sum; 
 }
 
-
-//Another Example: 
-
-// hot code before ...
-if (checkForErrorA()) // cold code starts
-    //medium-sized code block
-else if (checkForErrorB())
-    //medium-sized code block
-else if (checkForErrorC())
-    //medium-sized code block
-else
-    sendOrderToExchange(); // hot code again
-    
-//make the code more i-cache friendly by refactoring it such that the cold code is removed
-
-int errorFlags;
-//...
-if (!errorFlags)//hot code continous until here
-    sendOrderToExchange(); 
-else 
-    HandleError(errorFlags);
-    
-    
-
-    
-    
- //Pattern 2: Template Based Branch eliminiation pattern
+ //Pattern 2: Template Based Branch eliminiation pattern ----------------------------------
 //non-templated version with Branches
 float foo_slow(std::vector<int>& vec, bool include_negatives) {
     int len = vec.size();
@@ -123,9 +93,8 @@ float foo_fast(std::vector<int>& vec) {
     else
         return average / count;
 }
-    
-    
-//Pattern 3: The CRTP 
+
+//Pattern 3: The CRTP ----------------------------------
 //instead of using virtual functions:     
     //regular OOP-Variant
 class Base {
@@ -141,10 +110,6 @@ class Special: public Base {
 public:
     void inc() override {counter += 2;}
 };
-
-//would result in dynamic function dispatch
-Special* spec = new Special; 
-spec->inc();
 
 
 // we employ the CRTP
@@ -164,11 +129,7 @@ public:
     void inc() { counter = counter + 2;}
 };
 
-//would result in static function dispatch
-Special* specCRTP = new SpecialCRTP(); 
-specCRTP->inc();
-
-                 """
+"""
 
 
 
@@ -176,14 +137,18 @@ specCRTP->inc();
 
 
 class Refactor:
-    def __init__(self, apiKey):
-        self.apiKey = "X"
+    def __init__(self):
+        self.apiKey = None 
+
+    def setApiKey(self, apiKey):
+        self.apiKey = apiKey
+
 
     def generateCppFile(self, cpp_file, h_file, output_file):
         index = Index.create()
 
         # Parse the two files
-        tu_cpp = index.parse(cpp_file)
+        tu_cpp = index.parse(cpp_file, args=['-x', 'c++'])
         tu_h = index.parse(h_file, args=['-x', 'c++'])
 
         # Mapping from method names to their definitions
@@ -269,17 +234,22 @@ class Refactor:
         openai.api_key = self.apiKey
         
         cppCode = ""
-        with open("DummyCode/final.cpp", "r") as f:
+        with open(cppFile, "r") as f:
             for line in f.readlines():
                 cppCode += line
 
         response = openai.ChatCompletion.create(
         model="gpt-3.5-turbo",
         messages=[
-                {"role": "system", "content": "You are a code refactoring assistant. Given some C++ code with certain comments, \
-                    your task is refactor the code by implementing the design pattern suggestions written in the comments of the C++ code. \
-                    Your response should only consist of the C++ code and nothing else."},
-                {"role": "user", "content": cppCode},
+                {"role": "system", "content": "You are a code refactoring assistant that refactors C++ code by implementing certain design patterns."},
+                {"role": "user", "content": "I will first show you some EXAMPLES of the design patterns: " + designPatterns},
+                {"role": "assistant", "content": "Okay I have learned and understood the patterns."}, 
+                {"role": "user", "content": "Now before I give you some code to refactor I want you to understand this: \
+                                            The patterns that should be implemented are written in comments in the code. The CRTP Pattern \
+                                            means that you have to refactor the entire class. All other patterns are method specific. \
+                                            There can be multiple patterns per class or method that must be implemented at once. Once you are done just give back the C++ code and do not write a main function."},
+                {"role": "assistant", "content": "Okay I understood the requirements. I am ready for you to provide me with the code to refactor."},
+                {"role": "user", "content": "Remember: Only respond with the code and do not write a main function or any explanations. \ Further, implement all patterns that are indicated by the comments. Here is the code to refactor: " + cppCode}                
             ]
         )
 

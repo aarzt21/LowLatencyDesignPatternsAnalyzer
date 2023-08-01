@@ -26,7 +26,7 @@ class View(ctk.CTkTabview):
         dir_label = ctk.CTkLabel(master=top_left_frame, text="Directory", font=("Arial", 20, 'bold'))
         dir_label.pack(pady=(80, 10), padx=10)
 
-        self.dir_entry = ctk.CTkEntry(master=top_left_frame, placeholder_text="Directory Path", font=("Arial", 20))
+        self.dir_entry = ctk.CTkEntry(master=top_left_frame, placeholder_text="Directory Path", font=("Arial", 20, "italic"))
         self.dir_entry.pack(pady=10, padx=10, ipady=10)
 
         main_file_label = ctk.CTkLabel(master=top_left_frame, text="Main File", font=("Arial", 20, 'bold'))
@@ -107,4 +107,76 @@ class View(ctk.CTkTabview):
 
         # Refactor Tab ===============================================================================
         refactor_tab = self.add("Refactor")
+                
+        rtop_frame = ctk.CTkFrame(master=refactor_tab)
+        rtop_frame.pack(pady=(20, 20), fill="both")
+
+        rdir_label = ctk.CTkLabel(master=rtop_frame, text="Directory", font=("Arial", 18, 'bold'))
+        self.rdir_entry = ctk.CTkEntry(master=rtop_frame, placeholder_text="Directory Path", font=("Arial", 18, "italic"))
+        rbutton_0 = ctk.CTkButton(master=rtop_frame, command=self.model.list_stuff_in_HTML_OUT, text="Open Project", font=("Arial", 18))
+    
+        # Using grid for better positioning
+        rdir_label.grid(row=0, column=0, sticky='w', padx=10, pady=(10, 5))
+        self.rdir_entry.grid(row=1, column=0, sticky='ew', padx=10, pady=(0,0), ipady=10)
+        rbutton_0.grid(row=2, column=0, sticky='we', padx=10, pady=(10,30), ipady=10)
+
+
+        apiKeyFieldLabel = ctk.CTkLabel(master=rtop_frame, text="OpenAI API Key", font=("Arial", 18, 'bold'))
+        self.apiKeyField = ctk.CTkEntry(master=rtop_frame, placeholder_text="Your API Key", font=("Arial", 18, "italic"))
+        self.apiKeyField.grid(row = 1, column = 1, padx=10, pady=(0,0), ipady=10, sticky = "ew")
+        apiKeyFieldLabel.grid(row = 0, column = 1, padx=10, pady=(5, 5), sticky = "w")
+
+        # Create a new subframe
+        checkbox_subframe = ctk.CTkFrame(master=rtop_frame)
+        checkbox_subframe.grid(row=2, column=1, padx=10, pady=(5,40), sticky = "nswe")
+        model_label = ctk.CTkLabel(master=checkbox_subframe, text="Choose Your Model", font=("Arial", 14, 'italic'))
+        model_label.grid(row = 0, sticky  = "we", columnspan = 2, pady = (10, 10))
+
+        # Add the checkboxes to select Model
+        self.gpt3_checkbox = ctk.CTkCheckBox(master=checkbox_subframe, text="GPT-3.5-Turbo", font=("Arial", 14))
+        self.gpt3_checkbox.grid(row=1, column=0, padx=10, pady=(5,5), sticky='ns')
+
+        self.gpt4_checkbox = ctk.CTkCheckBox(master=checkbox_subframe, text="GPT-4", font=("Arial", 14))
+        self.gpt4_checkbox.grid(row=1, column=1, padx=10, pady=(5,5), sticky='ns')
+
+        # Create a new frame for scrollable_frame
+        scrollFrameLabel = ctk.CTkLabel(master=rtop_frame, text="Select Your File", font=("Arial", 18, 'bold'))
+        scrollFrameLabel.grid(row = 0, column = 2)
+
+        scroll_outer_frame = ctk.CTkFrame(master=rtop_frame)
+        scroll_outer_frame.grid(row=1, column=2, rowspan=2, sticky="nsew", pady=(5, 30), padx = 5)
+
+        self.rscrollable_frame = ctk.CTkScrollableFrame(master=scroll_outer_frame, fg_color="grey15")
+        self.rscrollable_frame.pack(fill="both", expand=True)
+      
+        self.radditional_files_switches = []
+
+        cloneButton = ctk.CTkButton(master=rtop_frame, command = self.model.createCppFileFromHTML, text="HTML to C++", font=("Arial", 18))
+        cloneButton.grid(row = 1, column = 3, padx = (15, 5), sticky = "nswe")
+        
+        readButton = ctk.CTkButton(master=rtop_frame, command=self.model.printFile, text="Print File", font=("Arial", 18))
+        readButton.grid(row = 1, column = 4, padx = (5, 5), sticky = "nswe")
+
+        refactorButton = ctk.CTkButton(master=rtop_frame, text="AI Refactor", font=("Arial", 18, "bold"))
+        refactorButton.grid(row = 2, column = 3, padx = (15, 5), pady = (20, 40), sticky = "nswe")
+
+        tryAgainButton = ctk.CTkButton(master=rtop_frame, text="Try Again", font=("Arial", 18, "bold"))
+        tryAgainButton.grid(row = 2, column = 4, padx = (5, 5), pady = (20, 40), sticky = "nswe")
+
+
+
+
+
+
+
+        rbottom_frame = ctk.CTkFrame(master=refactor_tab)
+        rbottom_frame.pack(pady=(20, 20), fill="both", expand=True)
+
+        stdout_label = ctk.CTkLabel(master=rbottom_frame, text="Output", font=("Arial", 20, 'bold'))
+        stdout_label.pack(pady=(20, 10), padx=10, anchor='w')
+
+
+        self.routput_text = ctk.CTkTextbox(master=rbottom_frame, width=400, height=140, font=("Arial", 20))
+        self.routput_text.pack(pady=15, padx=15, fill="both", expand=True)
+
 

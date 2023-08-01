@@ -4,7 +4,9 @@ from tbbe import analyze_tbbe
 from crtp import analyze_crtp
 from coldCode import analyze_coldCode
 from dod import analyze_dod
+from Refactorer import Refactor
 import os
+import shutil
 
 import customtkinter as ctk
 import subprocess
@@ -52,6 +54,7 @@ class Model():
     def __init__(self, application):
         self.app = application
         self.view = None
+        self.refactorer = Refactor()
 
     def set_view(self, view):
         self.view = view
@@ -110,6 +113,36 @@ class Model():
 
             # Add switch to the additional_files_switches list
             self.view.additional_files_switches.append(checkbox)
+
+    def list_stuff_in_HTML_OUT(self):
+        dirname = filedialog.askdirectory()
+        if not dirname:
+            return
+        
+        self.view.rdir_entry.delete(0, END)
+        self.view.rdir_entry.insert(0, dirname)
+
+        self.updateRefactorScrollWindow(dirname)
+
+
+    def updateRefactorScrollWindow(self, dirname):
+        files = [f for f in os.listdir(dirname) if f.endswith('.cpp') or f.endswith('.html')]
+ 
+        # Delete existing checkboxes from frame
+        for widget in self.view.rscrollable_frame.winfo_children():
+            widget.destroy()
+
+        # Clear existing switches
+        self.view.radditional_files_switches.clear()
+
+        # Insert new checkboxes
+        for i, f in enumerate(files):
+            checkbox = ctk.CTkCheckBox(master=self.view.rscrollable_frame, text=f)
+            checkbox.grid(row=i, column=0, padx=10, pady=(0, 20), sticky="w")
+
+            # Add switch to the additional_files_switches list
+            self.view.radditional_files_switches.append(checkbox)
+
 
 
     def compile_and_run_code(self):
@@ -266,3 +299,66 @@ class Model():
         self.view.output_text.insert("end", "\nAnalysis Done ======================")
         self.app.update_idletasks()  
     
+    
+    def printFile(self):
+            directory = self.view.rdir_entry.get()
+            files = [os.path.join(directory, switch.cget(
+            'text')) for switch in self.view.radditional_files_switches if switch.get()]
+            if len(files) != 1:
+                self.view.routput_text.delete("1.0", "end") 
+                self.view.routput_text.insert("end", "Please select one single file to print to the output console.")
+                return 
+            
+            self.view.routput_text.delete("1.0", "end")
+            with open(files[0], "r") as file:
+                for line in file.readlines():
+                    self.view.routput_text.insert("end", line)
+
+
+
+    def createCppFileFromHTML(self):
+        directory = self.view.rdir_entry.get()
+        parentDirectory = directory.replace("/HTML_OUT", "")
+
+        html_files = [os.path.join(directory, switch.cget(
+                            'text')) for switch in self.view.radditional_files_switches if switch.get()]
+        
+        if len(html_files) == 0:
+            self.view.routput_text.delete("1.0", "end") 
+            self.view.routput_text.insert("end", "Please select at least one .html file to convert into a .cpp file.")
+            return 
+
+        self.view.routput_text.delete("1.0", "end")
+
+        processed_files = []
+
+
+        for htmlFileFullPath in html_files: 
+            _, html_file = os.path.split(htmlFileFullPath)
+            
+            if not html_file.endswith(".html"):
+                self.view.routput_text.insert("end", "ignoring " + html_file + " since it is not a .html file")
+                continue
+            
+            #merge cpp file with header
+            cppFileFullPath = htmlFileFullPath.replace(".html", "")
+
+            # copy .h file from parentDirectory to HTML_OUT
+            for file_fullPath in os.listdir(parentDirectory):
+                _, file = os.path.split(file_fullPath)
+                if file == html_file.replace(".cpp.html", ".h"):
+                    shutil.copy(os.path.join(parentDirectory, file), directory)
+
+            self.refactorer._convertHTMLtoCPP(htmlFileFullPath, cppFileFullPath)
+            self.refactorer.generateCppFile(cppFileFullPath, cppFileFullPath.replace(".cpp", ".h"), cppFileFullPath)
+            processed_files.append(html_file)
+                
+        self.updateRefactorScrollWindow(directory)
+        self.view.routput_text.delete("1.0", "end")
+        processed_filesStr = ', '.join(processed_files)  # Join the strings with a space between each one
+        processed_filesStr = "[" + processed_filesStr + "]"
+        self.view.routput_text.insert("end", "Successfully converted all of " + processed_filesStr + " to .cpp files.")
+
+
+    def refactorUsingCGPT(self):
+        pass

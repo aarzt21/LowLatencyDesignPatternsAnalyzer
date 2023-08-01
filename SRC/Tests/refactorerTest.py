@@ -4,9 +4,8 @@ import sys
 sys.path.append("..")
 from Refactorer import Refactor
 
-ref = Refactor("asdfkjasldkfj")
+ref = Refactor()
 
-ref._convertHTMLtoCPP("DummyCode/FooClass.cpp.html", "DummyCode/blablabla.cpp")
-ref.generateCppFile("DummyCode/blablabla.cpp", "DummyCode/FooClass.h", "DummyCode/final.cpp")
-print(ref.send_prompt_to_cgpt("DummyCode/final.cpp"))
+ref._convertHTMLtoCPP("/home/alex/Desktop/Test/HTML_OUT/BarClass.cpp.html", "/home/alex/Desktop/Test/HTML_OUT/BarClass.cpp")
+ref.generateCppFile("/home/alex/Desktop/Test/HTML_OUT/BarClass.cpp", "/home/alex/Desktop/Test/HTML_OUT/BarClass.h", "/home/alex/Desktop/Test/HTML_OUT/BarClass.cpp")
 

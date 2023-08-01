@@ -20,8 +20,8 @@ public:
 	}
 	
 	 virtual void calculate_result(std::vector<int> &data, bool incl_neg) {
-	// WARNING: Virtual method 'calculate_result(std::vector<int> &, bool)'. Consider using the Curiously Recurring Template Pattern (CRTP) instead.
-	//This function uses an argument in one of its branches -> if the argument is known at compile time then consider the TBBE Pattern.
+	//USE CRTP for this entire class.
+	//Use TBBE pattern for this method (bool incl_neg) is known at compile time.
 	    int sum = 0;
 	    int count = 0;
 	
@@ -59,8 +59,8 @@ public:
 	FooChild() : FooClass("child"){}
 	
 	 virtual void calculate_result(std::vector<int> &data, bool incl_neg) {
-	// WARNING: Virtual method 'calculate_result(std::vector<int> &, bool)'. Consider using the Curiously Recurring Template Pattern (CRTP) instead.
-	//This function uses an argument in one of its branches -> if the argument is known at compile time then consider the TBBE Pattern.
+	//USE CRTP for this entire class.
+	//Use TBBE pattern for this method (bool incl_neg) is known at compile time.
 	    int sum = 0;
 	    int count = 0;
 	
