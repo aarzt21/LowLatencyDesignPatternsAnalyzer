@@ -133,10 +133,12 @@ class View(ctk.CTkTabview):
         model_label.grid(row = 0, sticky  = "we", columnspan = 2, pady = (10, 10))
 
         # Add the checkboxes to select Model
-        self.gpt3_checkbox = ctk.CTkCheckBox(master=checkbox_subframe, text="GPT-3.5-Turbo", font=("Arial", 14))
+        self.gpt3Var = BooleanVar()
+        self.gpt3_checkbox = ctk.CTkCheckBox(master=checkbox_subframe, variable=self.gpt3Var, text="GPT-3.5-Turbo", font=("Arial", 14))
         self.gpt3_checkbox.grid(row=1, column=0, padx=10, pady=(5,5), sticky='ns')
 
-        self.gpt4_checkbox = ctk.CTkCheckBox(master=checkbox_subframe, text="GPT-4", font=("Arial", 14))
+        self.gpt4Var = BooleanVar()
+        self.gpt4_checkbox = ctk.CTkCheckBox(master=checkbox_subframe,variable=self.gpt4Var, text="GPT-4", font=("Arial", 14))
         self.gpt4_checkbox.grid(row=1, column=1, padx=10, pady=(5,5), sticky='ns')
 
         # Create a new frame for scrollable_frame
@@ -157,16 +159,11 @@ class View(ctk.CTkTabview):
         readButton = ctk.CTkButton(master=rtop_frame, command=self.model.printFile, text="Print File", font=("Arial", 18))
         readButton.grid(row = 1, column = 4, padx = (5, 5), sticky = "nswe")
 
-        refactorButton = ctk.CTkButton(master=rtop_frame, text="AI Refactor", font=("Arial", 18, "bold"))
+        refactorButton = ctk.CTkButton(master=rtop_frame, command = self.model.refactorUsingCGPT, text="AI Refactor", font=("Arial", 18, "bold"))
         refactorButton.grid(row = 2, column = 3, padx = (15, 5), pady = (20, 40), sticky = "nswe")
 
         tryAgainButton = ctk.CTkButton(master=rtop_frame, text="Try Again", font=("Arial", 18, "bold"))
         tryAgainButton.grid(row = 2, column = 4, padx = (5, 5), pady = (20, 40), sticky = "nswe")
-
-
-
-
-
 
 
         rbottom_frame = ctk.CTkFrame(master=refactor_tab)

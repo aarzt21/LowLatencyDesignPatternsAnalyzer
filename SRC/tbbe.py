@@ -48,6 +48,6 @@ def analyze_tbbe(filename):
 
     comments = {}
     for line in lines_to_comment:
-        comments[line] = "This function uses an argument in one of its branches -> if the argument is known at compile time then consider the TBBE Pattern."
+        comments[line] = "Refactor this method using the TBBE Pattern."
     
     return comments

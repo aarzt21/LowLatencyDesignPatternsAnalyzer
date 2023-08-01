@@ -31,7 +31,7 @@ def analyze_crtp(filename):
         comment_dict = {}
         for warning in warnings:
             name, line = warning
-            comment_dict[line] = f"WARNING: Virtual method '{name}'. Consider using the Curiously Recurring Template Pattern (CRTP) instead."
+            comment_dict[line] = f"Refactor this class using the CRTP to get rid of virtual method."
         return comment_dict
 
     index = clang.cindex.Index.create()

@@ -193,7 +193,9 @@ class Model():
 
         # Generate gcov files and move them to COVERAGE_OUT directory
         coverage_out_dir = os.path.join(directory, 'COVERAGE_OUT')
-        os.makedirs(coverage_out_dir, exist_ok=True)
+        if os.path.exists(coverage_out_dir):
+            shutil.rmtree(coverage_out_dir)
+        os.makedirs(coverage_out_dir)
 
         # Move .gcno and .gcda files to COVERAGE_OUT directory
         for ext in ["gcno", "gcda"]:
@@ -227,7 +229,10 @@ class Model():
         os.chdir(original_directory)
 
         html_out_dir = os.path.join(directory, 'HTML_OUT')
-        os.makedirs(html_out_dir, exist_ok=True)
+
+        if os.path.exists(html_out_dir):
+            shutil.rmtree(html_out_dir)
+        os.makedirs(html_out_dir)
 
 
         files_to_analyze = [main_file] + additional_files
@@ -355,10 +360,65 @@ class Model():
                 
         self.updateRefactorScrollWindow(directory)
         self.view.routput_text.delete("1.0", "end")
-        processed_filesStr = ', '.join(processed_files)  # Join the strings with a space between each one
+        processed_filesStr = ', '.join(processed_files)  
         processed_filesStr = "[" + processed_filesStr + "]"
         self.view.routput_text.insert("end", "Successfully converted all of " + processed_filesStr + " to .cpp files.")
 
 
     def refactorUsingCGPT(self):
-        pass
+        directory = self.view.rdir_entry.get()
+        cpp_files = [os.path.join(directory, switch.cget(
+                            'text')) for switch in self.view.radditional_files_switches if switch.get()]
+        
+        if len(cpp_files) == 0:
+            self.view.routput_text.delete("1.0", "end") 
+            self.view.routput_text.insert("end", "Please select at least one .cpp file.")
+            return 
+
+        self.view.routput_text.delete("1.0", "end")
+
+        apiKey = self.view.apiKeyField.get()
+        if len(apiKey) < 5:
+            self.view.routput_text.delete("1.0", "end") 
+            self.view.routput_text.insert("end", "Please provide your OpenAI API Key.")
+            return
+            
+        self.refactorer.setApiKey(apiKey)
+
+        gptModel = None
+        if self.view.gpt3Var.get():
+            gptModel = "gpt-3.5-turbo"
+        elif self.view.gpt4Var.get():
+            gptModel = "gpt-4"
+        else:
+            self.view.routput_text.delete("1.0", "end") 
+            self.view.routput_text.insert("end", "Please select an AI Model for the refactoring.")
+            return
+                        
+        self.refactorer.setOaimodel(gptModel)
+
+        processed_files = []
+        for cpp_file in cpp_files:
+            if not cpp_file.endswith(".cpp"):
+                _, cf = os.path.split(cpp_file)
+                self.view.routput_text.insert("end", "ignoring " + cf + " since it is not a .cpp file")
+                self.app.update_idletasks()
+                continue
+            
+            _, cf = os.path.split(cpp_file) 
+            self.view.routput_text.delete("1.0", "end")
+            self.view.routput_text.insert("end", "Refactoring " + cf + " using " + gptModel + "...")
+            self.app.update_idletasks()
+
+
+            refactored_cpp_code = self.refactorer.send_prompt_to_cgpt(cpp_file)
+            with open(cpp_file.replace(".cpp", "RF.cpp"), "w") as f:
+                f.write(refactored_cpp_code)
+            processed_files.append(cf)
+
+        self.updateRefactorScrollWindow(directory)
+        self.view.routput_text.delete("1.0", "end")
+        processed_filesStr = ', '.join(processed_files)  
+        processed_filesStr = "[" + processed_filesStr + "]"
+        self.view.routput_text.insert("end", "Successfully refactored the following .cpp files: " + processed_filesStr)
+        self.app.update_idletasks()

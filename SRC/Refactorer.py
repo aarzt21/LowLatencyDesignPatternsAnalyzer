@@ -138,11 +138,14 @@ public:
 
 class Refactor:
     def __init__(self):
-        self.apiKey = None 
+        self.apiKey = None
+        self.oAImodel = None
 
     def setApiKey(self, apiKey):
         self.apiKey = apiKey
 
+    def setOaimodel(self, model):
+        self.oAImodel = model
 
     def generateCppFile(self, cpp_file, h_file, output_file):
         index = Index.create()
@@ -239,7 +242,7 @@ class Refactor:
                 cppCode += line
 
         response = openai.ChatCompletion.create(
-        model="gpt-3.5-turbo",
+        model= self.oAImodel,
         messages=[
                 {"role": "system", "content": "You are a code refactoring assistant that refactors C++ code by implementing certain design patterns."},
                 {"role": "user", "content": "I will first show you some EXAMPLES of the design patterns: " + designPatterns},
@@ -249,7 +252,7 @@ class Refactor:
                                             means that you have to refactor the entire class. All other patterns are method specific. \
                                             There can be multiple patterns per class or method that must be implemented at once. Once you are done just give back the C++ code and do not write a main function."},
                 {"role": "assistant", "content": "Okay I understood the requirements. I am ready for you to provide me with the code to refactor."},
-                {"role": "user", "content": "Remember: Only respond with the code and do not write a main function or any explanations. \ Further, implement all patterns that are indicated by the comments. Here is the code to refactor: " + cppCode}                
+                {"role": "user", "content": "Remember: Respond ONLY WITH THE CODE and do not write a main function or any explanations. Further, implement all patterns that are indicated by the comments. Here is the code to refactor: " + cppCode}                
             ]
         )
 
