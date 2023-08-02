@@ -96,8 +96,8 @@ class View(ctk.CTkTabview):
         bottom_frame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
         bottom_frame.pack(side="bottom", fill="both", expand=True)
 
-        stdout_label = ctk.CTkLabel(master=bottom_frame, text="Output", font=("Arial", 20, 'bold'))
-        stdout_label.pack(pady=(20, 10), padx=10, anchor='w')
+        output_label = ctk.CTkLabel(master=bottom_frame, text="Output", font=("Arial", 20, 'bold'))
+        output_label.pack(pady=(20, 10), padx=10, anchor='w')
 
 
         self.output_text = ctk.CTkTextbox(master=bottom_frame, width=400, height=140, font=("Arial", 20))
@@ -172,7 +172,7 @@ class View(ctk.CTkTabview):
         # Add an empty row to create space
         rmiddle_frame.grid_rowconfigure(1, minsize=20)
 
-        tryAgainButton = ctk.CTkButton(master=rmiddle_frame, command = self.model.refactorAgain, text="Try Again Using Custom Prompt", font=("Arial", 22, "bold"), border_color="grey77", border_width=1)
+        tryAgainButton = ctk.CTkButton(master=rmiddle_frame, command = self.model.refactorAgain, text="Re-RF Using Custom Prompt", font=("Arial", 20, "bold"), border_color="grey77", border_width=1)
         tryAgainButton.grid(row=0, column=1, padx=(5, 15), pady=(30, 5), sticky="ns", ipady = 5)
         rmiddle_frame.grid_columnconfigure(0, weight=1)  # Make column 0 take more horizontal space
         rmiddle_frame.grid_columnconfigure(1, weight=0)  # Make column 0 take more horizontal space
@@ -180,12 +180,19 @@ class View(ctk.CTkTabview):
 
         rbottom_frame = ctk.CTkFrame(master=refactor_tab, border_color="grey55", border_width=2)
         rbottom_frame.pack(pady=(20, 20), fill="both", expand=True)
- 
-        stdout_label = ctk.CTkLabel(master=rbottom_frame, text="Output", font=("Arial", 20, 'bold'))
-        stdout_label.pack(pady=(20, 10), padx=10, anchor='w')
-
+        
+        output_label = ctk.CTkLabel(master=rbottom_frame, text="Output", font=("Arial", 20, 'bold'))
+        output_label.grid(row=0, column=0, pady=(20, 10), padx=15, sticky='w')
+                
+        clearButton = ctk.CTkButton(master=rbottom_frame, command = lambda: self.model.rOutMessage("") , text="Clear Output", border_color="grey77", border_width=1, font = ("Arial", 14))
+        clearButton.grid(row=0, column=1, pady=(20, 10), padx=15, sticky="e")
 
         self.routput_text = ctk.CTkTextbox(master=rbottom_frame, width=400, height=140, font=("Arial", 20))
-        self.routput_text.pack(pady=15, padx=15, fill="both", expand=True)
+        self.routput_text.grid(row=1, column=0, columnspan=2, pady=15, padx=15, sticky="nsew")
+
+        rbottom_frame.grid_columnconfigure(0, weight=1)  # Allows column 0 to expand
+        rbottom_frame.grid_columnconfigure(1, weight=1)  # Allows column 1 to expand
+        rbottom_frame.grid_rowconfigure(1, weight=1)  # Allows row 1 to expand
+
 
 

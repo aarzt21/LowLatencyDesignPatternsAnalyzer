@@ -473,3 +473,5 @@ class Model():
     def rOutMessage(self, msg):
         self.view.routput_text.delete("1.0", "end") 
         self.view.routput_text.insert("end", msg)
+
+    
