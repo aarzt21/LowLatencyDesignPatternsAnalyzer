@@ -422,16 +422,14 @@ class Model():
         cpp_files = [os.path.join(directory, switch.cget(
                                 'text')) for switch in self.view.radditional_files_switches if switch.get()]
             
-        if len(cpp_files) != 2:
-            self.rOutMessage("Please select the original .cpp file and the _RF.cpp file to refactor it again.")
+        if len(cpp_files) != 1:
+            self.rOutMessage("Please select the one file with the refactored code (_RF.cpp) that you would like to refactor again.")
             return 
 
-        self.view.routput_text.delete("1.0", "end")
-
-        refFile = next((file for file in cpp_files if 'RF.cpp' in file), None)
-        orgFile = next((file for file in cpp_files if 'RF.cpp' not in file), None)
-
-        if refFile is None or orgFile is None:
+        try:
+            refFile = cpp_files[0]
+            orgFile = refFile.replace("RF.cpp", ".cpp")
+        except:
             self.rOutMessage("Could not identify the refactored and original files correctly.")
             return 
 
@@ -458,7 +456,7 @@ class Model():
             self.rOutMessage("Please provide a custom prompt to refactor the code again.")
             return
         
-        self.rOutMessage("Refactoring again ...")
+        self.rOutMessage("Refactoring " + os.path.split(refFile)[1] + " again...")
         self.app.update_idletasks()
 
         refactored_cpp_code = self.refactorer.send_Custom_prompt_to_cgpt(orgFile, refFile, customPrompt)
@@ -466,8 +464,8 @@ class Model():
         with open(refFile, "w") as f:
             f.write(refactored_cpp_code)
 
-        _ , rf = os.path.split(refFile)
-        self.rOutMessage("Successfully refactored: " + rf + " again...") 
+        self.rOutMessage("Successfully refactored: " + os.path.split(refFile)[1] + " again...")
+        self.app.update_idletasks() 
 
 
     def rOutMessage(self, msg):

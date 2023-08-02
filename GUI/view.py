@@ -29,7 +29,7 @@ class View(ctk.CTkTabview):
         self.dir_entry = ctk.CTkEntry(master=top_left_frame, placeholder_text="Directory Path", font=("Arial", 20, "italic"))
         self.dir_entry.pack(pady=10, padx=10, ipady=10)
 
-        main_file_label = ctk.CTkLabel(master=top_left_frame, text="Main File", font=("Arial", 20, 'bold'))
+        main_file_label = ctk.CTkLabel(master=top_left_frame, text="Mock Program", font=("Arial", 20, 'bold'))
         main_file_label.pack(pady=10, padx=10)
         self.main_file_var = StringVar()
         self.main_file_combobox = ctk.CTkComboBox(master=top_left_frame, font=("Arial", 20))

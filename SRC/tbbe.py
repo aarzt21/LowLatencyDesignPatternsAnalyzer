@@ -48,6 +48,6 @@ def analyze_tbbe(filename):
 
     comments = {}
     for line in lines_to_comment:
-        comments[line] = "Refactor this method using the TBBE Pattern."
+        comments[line] = "Refactor this method by applying the TBBE Pattern."
     
     return comments

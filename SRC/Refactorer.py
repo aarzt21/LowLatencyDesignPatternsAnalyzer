@@ -1,6 +1,8 @@
 from clang.cindex import Index, CursorKind, AccessSpecifier, TypeKind
 from bs4 import BeautifulSoup
 import openai
+import re
+
 
 access_specifier_map = {
     AccessSpecifier.INVALID: 'INVALID',
@@ -232,6 +234,23 @@ class Refactor:
         with open(outfilename, "w") as f:
             f.write(cpp_code)
 
+
+    def extractCode(self,text):
+        # If there are no triple backticks in the text, return the whole text
+        if '```' not in text:
+            return text.strip()
+
+        # Pattern to match code blocks (``` some code ```)
+        pattern = r'```.*?\n(.*?)```'
+
+        # Use re.DOTALL to match across line breaks
+        matches = re.findall(pattern, text, re.DOTALL)
+
+        # Concatenate all the matched code blocks
+        code = '\n'.join(matches)
+        return code
+
+
     def send_prompt_to_cgpt(self, cppFile):
         
         openai.api_key = self.apiKey
@@ -256,7 +275,7 @@ class Refactor:
             ]
         )
 
-        return response.choices[0].message['content']
+        return self.extractCode(response.choices[0].message['content'])
     
 
 
@@ -289,4 +308,4 @@ class Refactor:
             ]
         )
 
-        return response.choices[0].message['content']
+        return self.extractCode(response.choices[0].message['content'])
