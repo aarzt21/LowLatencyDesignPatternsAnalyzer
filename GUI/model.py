@@ -310,8 +310,7 @@ class Model():
             files = [os.path.join(directory, switch.cget(
             'text')) for switch in self.view.radditional_files_switches if switch.get()]
             if len(files) != 1:
-                self.view.routput_text.delete("1.0", "end") 
-                self.view.routput_text.insert("end", "Please select one single file to print to the output console.")
+                self.rOutMessage("Please select one single file to print to the output console.")
                 return 
             
             self.view.routput_text.delete("1.0", "end")
@@ -329,8 +328,7 @@ class Model():
                             'text')) for switch in self.view.radditional_files_switches if switch.get()]
         
         if len(html_files) == 0:
-            self.view.routput_text.delete("1.0", "end") 
-            self.view.routput_text.insert("end", "Please select at least one .html file to convert into a .cpp file.")
+            self.rOutMessage("Please select at least one .html file to convert into a .cpp file.")
             return 
 
         self.view.routput_text.delete("1.0", "end")
@@ -359,10 +357,10 @@ class Model():
             processed_files.append(html_file)
                 
         self.updateRefactorScrollWindow(directory)
-        self.view.routput_text.delete("1.0", "end")
         processed_filesStr = ', '.join(processed_files)  
         processed_filesStr = "[" + processed_filesStr + "]"
-        self.view.routput_text.insert("end", "Successfully converted all of " + processed_filesStr + " to .cpp files.")
+        self.rOutMessage("Successfully converted all of " + processed_filesStr + " to .cpp files.")
+
 
 
     def refactorUsingCGPT(self):
@@ -371,16 +369,14 @@ class Model():
                             'text')) for switch in self.view.radditional_files_switches if switch.get()]
         
         if len(cpp_files) == 0:
-            self.view.routput_text.delete("1.0", "end") 
-            self.view.routput_text.insert("end", "Please select at least one .cpp file.")
+            self.rOutMessage("Please select at least one .cpp file.")
             return 
 
         self.view.routput_text.delete("1.0", "end")
 
         apiKey = self.view.apiKeyField.get()
         if len(apiKey) < 5:
-            self.view.routput_text.delete("1.0", "end") 
-            self.view.routput_text.insert("end", "Please provide your OpenAI API Key.")
+            self.rOutMessage("Please provide your OpenAI API Key.")
             return
             
         self.refactorer.setApiKey(apiKey)
@@ -391,8 +387,7 @@ class Model():
         elif self.view.gpt4Var.get():
             gptModel = "gpt-4"
         else:
-            self.view.routput_text.delete("1.0", "end") 
-            self.view.routput_text.insert("end", "Please select an AI Model for the refactoring.")
+            self.rOutMessage("Please select an AI Model for the refactoring.")
             return
                         
         self.refactorer.setOaimodel(gptModel)
@@ -401,13 +396,12 @@ class Model():
         for cpp_file in cpp_files:
             if not cpp_file.endswith(".cpp"):
                 _, cf = os.path.split(cpp_file)
-                self.view.routput_text.insert("end", "ignoring " + cf + " since it is not a .cpp file")
+                self.rOutMessage("ignoring " + cf + " since it is not a .cpp file")
                 self.app.update_idletasks()
                 continue
             
             _, cf = os.path.split(cpp_file) 
-            self.view.routput_text.delete("1.0", "end")
-            self.view.routput_text.insert("end", "Refactoring " + cf + " using " + gptModel + "...")
+            self.rOutMessage( "Refactoring " + cf + " using " + gptModel + "...")
             self.app.update_idletasks()
 
 
@@ -417,8 +411,65 @@ class Model():
             processed_files.append(cf)
 
         self.updateRefactorScrollWindow(directory)
-        self.view.routput_text.delete("1.0", "end")
         processed_filesStr = ', '.join(processed_files)  
         processed_filesStr = "[" + processed_filesStr + "]"
-        self.view.routput_text.insert("end", "Successfully refactored the following .cpp files: " + processed_filesStr)
+        self.rOutMessage("Successfully refactored the following .cpp files: " + processed_filesStr)
         self.app.update_idletasks()
+
+
+    def refactorAgain(self):
+        directory = self.view.rdir_entry.get()
+        cpp_files = [os.path.join(directory, switch.cget(
+                                'text')) for switch in self.view.radditional_files_switches if switch.get()]
+            
+        if len(cpp_files) != 2:
+            self.rOutMessage("Please select the original .cpp file and the _RF.cpp file to refactor it again.")
+            return 
+
+        self.view.routput_text.delete("1.0", "end")
+
+        refFile = next((file for file in cpp_files if 'RF.cpp' in file), None)
+        orgFile = next((file for file in cpp_files if 'RF.cpp' not in file), None)
+
+        if refFile is None or orgFile is None:
+            self.rOutMessage("Could not identify the refactored and original files correctly.")
+            return 
+
+        apiKey = self.view.apiKeyField.get()
+        if len(apiKey) < 5:
+            self.rOutMessage("Please provide your OpenAI API Key.")
+            return
+                
+        self.refactorer.setApiKey(apiKey)
+
+        gptModel = None
+        if self.view.gpt3Var.get():
+            gptModel = "gpt-3.5-turbo"
+        elif self.view.gpt4Var.get():
+            gptModel = "gpt-4"
+        else:
+            self.rOutMessage("Please select an AI Model for the refactoring.")
+            return
+                            
+        self.refactorer.setOaimodel(gptModel)
+
+        customPrompt = self.view.promptField.get()
+        if len(customPrompt) < 2: 
+            self.rOutMessage("Please provide a custom prompt to refactor the code again.")
+            return
+        
+        self.rOutMessage("Refactoring again ...")
+        self.app.update_idletasks()
+
+        refactored_cpp_code = self.refactorer.send_Custom_prompt_to_cgpt(orgFile, refFile, customPrompt)
+
+        with open(refFile, "w") as f:
+            f.write(refactored_cpp_code)
+
+        _ , rf = os.path.split(refFile)
+        self.rOutMessage("Successfully refactored: " + rf + " again...") 
+
+
+    def rOutMessage(self, msg):
+        self.view.routput_text.delete("1.0", "end") 
+        self.view.routput_text.insert("end", msg)

@@ -257,3 +257,36 @@ class Refactor:
         )
 
         return response.choices[0].message['content']
+    
+
+
+
+    def send_Custom_prompt_to_cgpt(self, orgFile, refFile, customPrompt):
+    
+        openai.api_key = self.apiKey
+        
+        orgCode = ""
+        with open(orgFile, "r") as f:
+            for line in f.readlines():
+                orgCode += line
+
+        refCode = ""
+        with open(refFile, "r") as f:
+            for line in f.readlines():
+                refCode += line
+
+
+        response = openai.ChatCompletion.create(
+        model= self.oAImodel,
+        messages=[
+                {"role": "system", "content": "You are a code refactoring assistant that refactors C++ code by implementing certain design patterns."},
+                {"role": "user", "content": "These are the design patterns I have shown you: " + designPatterns},
+                {"role": "assistant", "content": "Okay I looked at them again."}, 
+                {"role": "user", "content": "Then I gave you this code: " + orgCode + "and you have refactored it to this code: " + refCode},
+                {"role": "assistant", "content": "Okay, do you want me to try again?."},
+                {"role": "user", "content": "yes refactor this code: " + orgCode + " again (only give back the refactored code) but this time pay attention to this: " + customPrompt}
+                 
+            ]
+        )
+
+        return response.choices[0].message['content']

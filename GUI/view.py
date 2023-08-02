@@ -17,11 +17,11 @@ class View(ctk.CTkTabview):
         # Analysis Tab ===============================================================================
         analyze_tab = self.add("Analyze")
 
-        top_frame = ctk.CTkFrame(master=analyze_tab)
+        top_frame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
         top_frame.pack(pady = (20, 20), fill="both", expand = True)
         
         top_left_frame = ctk.CTkFrame(master=top_frame)
-        top_left_frame.pack(side="left", fill="both", expand=False)
+        top_left_frame.pack(pady = (3, 3), padx = (2, 0), side="left", fill="both", expand=False)
 
         dir_label = ctk.CTkLabel(master=top_left_frame, text="Directory", font=("Arial", 20, 'bold'))
         dir_label.pack(pady=(80, 10), padx=10)
@@ -36,11 +36,11 @@ class View(ctk.CTkTabview):
         self.main_file_combobox.pack(pady=10, padx=10)
         self.main_file_combobox.set('')
 
-        button_0 = ctk.CTkButton(master=top_left_frame, command=self.model.open_directory_dialog, text="Open Project", font=("Arial", 20))
+        button_0 = ctk.CTkButton(master=top_left_frame, command=self.model.open_directory_dialog, text="Open Project", font=("Arial", 20), border_color="grey77", border_width=1)
         button_0.pack(pady=50, padx=10, ipady=10)
-
+        
         top_middle_frame = ctk.CTkFrame(master=top_frame)
-        top_middle_frame.pack(side="left", fill="both", expand=True)
+        top_middle_frame.pack(pady = (3,3),side="left", fill="both", expand=True)
 
         additional_files_label = ctk.CTkLabel(master=top_middle_frame, text="Additional C++ Source Files", font=("Arial", 20, 'bold'))
         additional_files_label.pack(pady=(20,5), padx=10, fill = "both")
@@ -49,9 +49,9 @@ class View(ctk.CTkTabview):
 
         self.scrollable_frame = ctk.CTkScrollableFrame(master=top_middle_frame, fg_color="grey15")
         self.scrollable_frame.pack(pady=10, padx=10, fill="both", expand=True)
-
+        
         top_right_frame = ctk.CTkFrame(master=top_frame)
-        top_right_frame.pack(side="left", fill="both", expand=False)
+        top_right_frame.pack(pady = (3,3), padx = (0, 2), side="left", fill="both", expand=False)
 
         top_right_frame.grid_rowconfigure(0, weight=1)
         top_right_frame.grid_columnconfigure(0, weight=1)
@@ -78,11 +78,11 @@ class View(ctk.CTkTabview):
         self.dod_check = ctk.CTkCheckBox(master=top_right_frame, text='DOD', variable=self.dod_var, font=("Arial", 22))
         self.dod_check.grid(row=3, column=0, padx=10, pady=(0, 10), sticky="w")
 
-        button_1 = ctk.CTkButton(master=top_right_frame, command=self.model.compile_and_run_code, text="Analyze", font=("Arial", 20, "bold"))
+        button_1 = ctk.CTkButton(master=top_right_frame, command=self.model.compile_and_run_code, text="Analyze", font=("Arial", 20, "bold"), border_color="grey77", border_width=1)
         button_1.grid(row=4, column=0, pady=(30, 30), padx=30, ipady=10, sticky="w")
+        
 
-
-        status_frame = ctk.CTkFrame(master=analyze_tab)
+        status_frame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
         status_frame.pack( fill="both", expand=False, pady=(5, 30))
 
         status_label = ctk.CTkLabel(master=status_frame, text="Progress", font=("Arial", 20, 'bold'))
@@ -93,7 +93,7 @@ class View(ctk.CTkTabview):
         self.progress_bar.set(0)
         self.progress_bar.pack(pady=20, padx=20, fill="both", expand=False)
 
-        bottom_frame = ctk.CTkFrame(master=analyze_tab)
+        bottom_frame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
         bottom_frame.pack(side="bottom", fill="both", expand=True)
 
         stdout_label = ctk.CTkLabel(master=bottom_frame, text="Output", font=("Arial", 20, 'bold'))
@@ -108,12 +108,12 @@ class View(ctk.CTkTabview):
         # Refactor Tab ===============================================================================
         refactor_tab = self.add("Refactor")
                 
-        rtop_frame = ctk.CTkFrame(master=refactor_tab)
+        rtop_frame = ctk.CTkFrame(master=refactor_tab, border_color="grey55", border_width=2)
         rtop_frame.pack(pady=(20, 20), fill="both")
 
         rdir_label = ctk.CTkLabel(master=rtop_frame, text="Directory", font=("Arial", 18, 'bold'))
-        self.rdir_entry = ctk.CTkEntry(master=rtop_frame, placeholder_text="Directory Path", font=("Arial", 18, "italic"))
-        rbutton_0 = ctk.CTkButton(master=rtop_frame, command=self.model.list_stuff_in_HTML_OUT, text="Open Project", font=("Arial", 18))
+        self.rdir_entry = ctk.CTkEntry(master=rtop_frame, placeholder_text="Path to HTML_OUT", font=("Arial", 18, "italic"))
+        rbutton_0 = ctk.CTkButton(master=rtop_frame, command=self.model.list_stuff_in_HTML_OUT, text="Open HTML_OUT", font=("Arial", 18), border_color="grey77", border_width=1)
     
         # Using grid for better positioning
         rdir_label.grid(row=0, column=0, sticky='w', padx=10, pady=(10, 5))
@@ -142,8 +142,8 @@ class View(ctk.CTkTabview):
         self.gpt4_checkbox.grid(row=1, column=1, padx=10, pady=(5,5), sticky='ns')
 
         # Create a new frame for scrollable_frame
-        scrollFrameLabel = ctk.CTkLabel(master=rtop_frame, text="Select Your File", font=("Arial", 18, 'bold'))
-        scrollFrameLabel.grid(row = 0, column = 2)
+        scrollFrameLabel = ctk.CTkLabel(master=rtop_frame, text="Files", font=("Arial", 18, 'bold'))
+        scrollFrameLabel.grid(row = 0, column = 2, sticky = "ew")
 
         scroll_outer_frame = ctk.CTkFrame(master=rtop_frame)
         scroll_outer_frame.grid(row=1, column=2, rowspan=2, sticky="nsew", pady=(5, 30), padx = 5)
@@ -153,22 +153,34 @@ class View(ctk.CTkTabview):
       
         self.radditional_files_switches = []
 
-        cloneButton = ctk.CTkButton(master=rtop_frame, command = self.model.createCppFileFromHTML, text="HTML to C++", font=("Arial", 18))
-        cloneButton.grid(row = 1, column = 3, padx = (15, 5), sticky = "nswe")
+        cloneButton = ctk.CTkButton(master=rtop_frame, command = self.model.createCppFileFromHTML, text="HTML to C++", font=("Arial", 18), border_color="grey77", border_width=1)
+        cloneButton.grid(row = 1, column = 3, padx = (25, 5), sticky = "nswe", pady = (20, 3))
         
-        readButton = ctk.CTkButton(master=rtop_frame, command=self.model.printFile, text="Print File", font=("Arial", 18))
-        readButton.grid(row = 1, column = 4, padx = (5, 5), sticky = "nswe")
+        readButton = ctk.CTkButton(master=rtop_frame, command=self.model.printFile, text="Print File", font=("Arial", 18), border_color="grey77", border_width=1)
+        readButton.grid(row = 1, column = 4, padx = (5, 5), sticky = "nswe", pady = (20, 3))
 
-        refactorButton = ctk.CTkButton(master=rtop_frame, command = self.model.refactorUsingCGPT, text="AI Refactor", font=("Arial", 18, "bold"))
-        refactorButton.grid(row = 2, column = 3, padx = (15, 5), pady = (20, 40), sticky = "nswe")
-
-        tryAgainButton = ctk.CTkButton(master=rtop_frame, text="Try Again", font=("Arial", 18, "bold"))
-        tryAgainButton.grid(row = 2, column = 4, padx = (5, 5), pady = (20, 40), sticky = "nswe")
+        refactorButton = ctk.CTkButton(master=rtop_frame, command = self.model.refactorUsingCGPT, text="AI Refactoring", font=("Arial", 18, "bold"), border_color="grey77", border_width=1)
+        refactorButton.grid(row = 2, column = 3, columnspan = 2, padx = (25, 5), pady = (30, 50), sticky = "nswe")
 
 
-        rbottom_frame = ctk.CTkFrame(master=refactor_tab)
+        rmiddle_frame = ctk.CTkFrame(master=refactor_tab, border_color="grey55", border_width=2)
+        rmiddle_frame.pack(pady=(10, 10), fill="both", expand=False)
+
+        self.promptField = ctk.CTkEntry(master=rmiddle_frame, placeholder_text="Select the .cpp files to refactor and type in your prompt here.", font=("Arial", 18, "italic"))
+        self.promptField.grid(row=0, rowspan = 2, column=0, pady=(10, 10), padx=10, sticky="nswe")
+
+        # Add an empty row to create space
+        rmiddle_frame.grid_rowconfigure(1, minsize=20)
+
+        tryAgainButton = ctk.CTkButton(master=rmiddle_frame, command = self.model.refactorAgain, text="Try Again Using Custom Prompt", font=("Arial", 22, "bold"), border_color="grey77", border_width=1)
+        tryAgainButton.grid(row=0, column=1, padx=(5, 15), pady=(30, 5), sticky="ns", ipady = 5)
+        rmiddle_frame.grid_columnconfigure(0, weight=1)  # Make column 0 take more horizontal space
+        rmiddle_frame.grid_columnconfigure(1, weight=0)  # Make column 0 take more horizontal space
+
+
+        rbottom_frame = ctk.CTkFrame(master=refactor_tab, border_color="grey55", border_width=2)
         rbottom_frame.pack(pady=(20, 20), fill="both", expand=True)
-
+ 
         stdout_label = ctk.CTkLabel(master=rbottom_frame, text="Output", font=("Arial", 20, 'bold'))
         stdout_label.pack(pady=(20, 10), padx=10, anchor='w')
 
