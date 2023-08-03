@@ -80,10 +80,10 @@ def analyze_coldCode(filename, coverage_filename, relative_threshold=0.3):
     comments = {}
     for block in cold_then_blocks: 
         if_line, then_block, perc = block
-        comments[if_line] = f"WARNING: Cold block detected: THEN block has {round(perc*100,1)}% of the if condition's execution count."
+        comments[if_line] = f"Refactor this THEN block by moving it into seperate method ({round(perc*100,1)}%)."
 
     for block in cold_else_blocks:  
         if_line, else_block, perc = block
-        comments[else_block[0]] = f"WARNING: Cold block detected: ELSE block has {round(perc*100,1)}% of the if condition's execution count."
+        comments[else_block[0]] = f"Refactor this ELSE block by moving it into seperate method ({round(perc*100,1)}%)."
 
     return comments
