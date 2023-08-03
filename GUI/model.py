@@ -251,7 +251,7 @@ class Model():
 
                 for file in additional_files:
                     gcov_file = self.transform_path(file)
-                    hot_attributes = analyze_dod(file, gcov_file, factor=2)
+                    hot_attributes = analyze_dod(file, gcov_file, factor=10)
 
                     for class_name, attributes in hot_attributes.items():
                         for attr, count in attributes:
