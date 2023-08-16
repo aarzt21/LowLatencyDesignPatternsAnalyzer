@@ -3,7 +3,7 @@
 from model import *
 from view import *
 import customtkinter as ctk
-
+ctk.set_appearance_mode("dark")
 
 class App(ctk.CTk):
     def __init__(self):

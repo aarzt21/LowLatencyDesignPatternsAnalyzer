@@ -95,7 +95,7 @@ class Model():
 
         self.view.dir_entry.delete(0, END)
         self.view.dir_entry.insert(0, dirname)
-
+ 
         cpp_files = [f for f in os.listdir(dirname) if f.endswith('.cpp')]
         self.view.main_file_combobox.configure(values=cpp_files)
 
