@@ -68,9 +68,9 @@ float foo_slow(std::vector<int>& vec, bool include_negatives) {
 }
 
 
-//now since the value of include_negatives is known at compile time, 
+//Since the value of include_negatives is known at compile time, 
 //we can eliminate the branches using templates, i.e. apply the Template Based Branch Elimination Pattern: 
-//TB Version without branches
+
 template <bool include_negatives>
 float foo_fast(std::vector<int>& vec) {
     int len = vec.size();
@@ -98,7 +98,7 @@ float foo_fast(std::vector<int>& vec) {
 
 //Pattern 3: The CRTP ----------------------------------
 //instead of using virtual functions:     
-    //regular OOP-Variant
+ 
 class Base {
 protected:
     int counter;
@@ -114,21 +114,29 @@ public:
 };
 
 
-// we employ the CRTP
-//CRTP ---------
+// we employ the CRTP:
+
 template <typename Derived>
 class CRTPTemplate {
 protected:
     int counter;
 public:
     CRTPTemplate() : counter(0) {}
-    void inc(){static_cast<Derived*>(this)->inc();}
-    int getCounter(){return counter;}
+    void inc(){static_cast<Derived*>(this)->incImpl();}
+    int getCounter(){return counter;} //extract common methods into template
 };
 
+class BaseCRTP: public CRTPTemplate<BaseCRTP> {
+private:
+    friend class CRTPTemplate<BaseCRTP>;
+    void incImpl() { counter = counter + 1;}
+};
+
+
 class SpecialCRTP: public CRTPTemplate<SpecialCRTP> {
-public:
-    void inc() { counter = counter + 2;}
+private:
+    friend class CRTPTemplate<SpecialCRTP>;
+    void incImpl() { counter = counter + 2;}
 };
 
 """

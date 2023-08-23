@@ -1,5 +1,7 @@
 #!/bin/bash
 
+xhost +local:docker
+
 #run container after building image
 docker run -it \
            --rm \

@@ -38,4 +38,3 @@ WORKDIR /app/GUI
 
 # Run the app as the default command
 CMD ["python", "main.py"]
-
