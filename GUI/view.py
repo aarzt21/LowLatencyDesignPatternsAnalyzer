@@ -17,10 +17,10 @@ class View(ctk.CTkTabview):
         # Analysis Tab ===============================================================================
         analyze_tab = self.add("Analyze")
 
-        top_frame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
-        top_frame.pack(pady = (20, 20), fill="both", expand = True)
+        upperFrame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
+        upperFrame.pack(pady = (20, 20), fill="both", expand = True)
         
-        top_left_frame = ctk.CTkFrame(master=top_frame)
+        top_left_frame = ctk.CTkFrame(master=upperFrame)
         top_left_frame.pack(pady = (3, 3), padx = (2, 0), side="left", fill="both", expand=False)
 
         dir_label = ctk.CTkLabel(master=top_left_frame, text="Directory", font=("Arial", 20, 'bold'))
@@ -39,7 +39,7 @@ class View(ctk.CTkTabview):
         button_0 = ctk.CTkButton(master=top_left_frame, command=self.model.open_directory_dialog, text="Open Project", font=("Arial", 20), border_color="grey77", border_width=1)
         button_0.pack(pady=50, padx=10, ipady=10)
         
-        top_middle_frame = ctk.CTkFrame(master=top_frame)
+        top_middle_frame = ctk.CTkFrame(master=upperFrame)
         top_middle_frame.pack(pady = (3,3),side="left", fill="both", expand=True)
 
         additional_files_label = ctk.CTkLabel(master=top_middle_frame, text="Additional C++ Source Files", font=("Arial", 20, 'bold'))
@@ -50,7 +50,7 @@ class View(ctk.CTkTabview):
         self.scrollable_frame = ctk.CTkScrollableFrame(master=top_middle_frame, fg_color="grey15")
         self.scrollable_frame.pack(pady=10, padx=10, fill="both", expand=True)
         
-        top_right_frame = ctk.CTkFrame(master=top_frame)
+        top_right_frame = ctk.CTkFrame(master=upperFrame)
         top_right_frame.pack(pady = (3,3), padx = (0, 2), side="left", fill="both", expand=False)
 
         top_right_frame.grid_rowconfigure(0, weight=1)
@@ -93,14 +93,14 @@ class View(ctk.CTkTabview):
         self.progress_bar.set(0)
         self.progress_bar.pack(pady=20, padx=20, fill="both", expand=False)
 
-        bottom_frame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
-        bottom_frame.pack(side="bottom", fill="both", expand=True)
+        lowerFrame = ctk.CTkFrame(master=analyze_tab, border_color="grey55", border_width=2)
+        lowerFrame.pack(side="bottom", fill="both", expand=True)
 
-        output_label = ctk.CTkLabel(master=bottom_frame, text="Output", font=("Arial", 20, 'bold'))
+        output_label = ctk.CTkLabel(master=lowerFrame, text="Output", font=("Arial", 20, 'bold'))
         output_label.pack(pady=(20, 10), padx=10, anchor='w')
 
 
-        self.output_text = ctk.CTkTextbox(master=bottom_frame, width=400, height=140, font=("Arial", 20))
+        self.output_text = ctk.CTkTextbox(master=lowerFrame, width=400, height=140, font=("Arial", 20))
         self.output_text.pack(pady=15, padx=15, fill="both", expand=True)
 
     

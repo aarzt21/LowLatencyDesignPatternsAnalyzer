@@ -185,7 +185,7 @@ class Model():
             executable_path, shell=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         stdout, stderr = process.communicate()
         if stdout:
-            self.view.output_text.insert("end", "\n\nStandard Out: \n \t" + stdout.decode())
+            self.view.output_text.insert("end", "\n\nStandard Out:\n" + stdout.decode())
             self.app.update_idletasks()
         if stderr:
             self.view.output_text.insert("end", "\n" + stderr.decode())
