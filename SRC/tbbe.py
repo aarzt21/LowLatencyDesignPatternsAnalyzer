@@ -5,46 +5,46 @@ from pygments.formatters import HtmlFormatter
 import os
 
 def analyze_tbbe(filename):
-    def find_if_statements_in_node(node, function_args):
-        arg_in_if_statement = False
-        if node.kind == clang.cindex.CursorKind.IF_STMT:
-            for expr in node.walk_preorder():
-                if expr.kind == clang.cindex.CursorKind.DECL_REF_EXPR and expr.spelling in function_args:
-                    arg_in_if_statement = True
+    def getIfStmntInVertex(knot, function_args):
+        argInIfStmnt = False
+        if knot.kind == clang.cindex.CursorKind.IF_STMT:
+            for ausdrk in knot.walk_preorder():
+                if ausdrk.kind == clang.cindex.CursorKind.DECL_REF_EXPR and ausdrk.spelling in function_args:
+                    argInIfStmnt = True
                     break
         else:
-            for child in node.get_children():
-                if find_if_statements_in_node(child, function_args):
-                    arg_in_if_statement = True
+            for descdnt in knot.get_children():
+                if getIfStmntInVertex(descdnt, function_args):
+                    argInIfStmnt = True
                     break
-        return arg_in_if_statement
+        return argInIfStmnt
 
-    def find_functions_with_args_in_if_statements(node, filename, lines_to_comment):
-        if (node.kind == clang.cindex.CursorKind.FUNCTION_DECL or 
-            node.kind == clang.cindex.CursorKind.CXX_METHOD) and node.location.file and node.location.file.name == filename:
+    def findMethodsWithArgsInIfStatements(knot, filename, lines_to_comment):
+        if (knot.kind == clang.cindex.CursorKind.FUNCTION_DECL or 
+            knot.kind == clang.cindex.CursorKind.CXX_METHOD) and knot.location.file and knot.location.file.name == filename:
             
-            function_name = node.spelling
-            function_args = [arg.spelling for arg in node.get_arguments()]
+            funcName = knot.spelling
+            funcArgs = [arg.spelling for arg in knot.get_arguments()]
 
-            for child in node.get_children():
-                if find_if_statements_in_node(child, function_args):
-                    lines_to_comment.append(node.location.line)
+            for kid in knot.get_children():
+                if getIfStmntInVertex(kid, funcArgs):
+                    lines_to_comment.append(knot.location.line)
                     break
 
-        for child in node.get_children():
-            find_functions_with_args_in_if_statements(child, filename, lines_to_comment)
+        for kid in knot.get_children():
+            findMethodsWithArgsInIfStatements(kid, filename, lines_to_comment)
 
-    index = clang.cindex.Index.create()
+    idx = clang.cindex.Index.create()
         
-    translation_unit = index.parse(filename)  # Parse the file
-    if translation_unit.diagnostics:
-        for diag in translation_unit.diagnostics:
+    TU = idx.parse(filename)  # Parse the file
+    if TU.diagnostics:
+        for diag in TU.diagnostics:
             print("Diagnostic:", diag)
         return
 
-    tu_cursor = translation_unit.cursor
+    tu_cursor = TU.cursor
     lines_to_comment = []
-    find_functions_with_args_in_if_statements(tu_cursor, filename, lines_to_comment)
+    findMethodsWithArgsInIfStatements(tu_cursor, filename, lines_to_comment)
 
     comments = {}
     for line in lines_to_comment:

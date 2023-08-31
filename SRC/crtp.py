@@ -1,20 +1,20 @@
 import clang.cindex
 
 def analyze_crtp(filename):
-    def find_virtual_functions(node, filename):
+    def findVirtualMethods(vertex, filename):
         result = []
-        if node.location.file and node.location.file.name == filename:
-            if node.kind == clang.cindex.CursorKind.CXX_METHOD and node.is_virtual_method():
-                result.append((node.displayname, node.location.line))
-        for child in node.get_children():
-            result.extend(find_virtual_functions(child, filename))
+        if vertex.location.file and vertex.location.file.name == filename:
+            if vertex.kind == clang.cindex.CursorKind.CXX_METHOD and vertex.is_virtual_method():
+                result.append((vertex.displayname, vertex.location.line))
+        for child in vertex.get_children():
+            result.extend(findVirtualMethods(child, filename))
         return result
 
-    def find_virtual_function_calls(node, filename):
+    def findVirtualMethodCalls(vertex, filename):
         result = []
-        if node.location.file and node.location.file.name == filename:
-            if node.kind == clang.cindex.CursorKind.CALL_EXPR: #if node is func call proceed with further checks
-                children = list(node.get_children())
+        if vertex.location.file and vertex.location.file.name == filename:
+            if vertex.kind == clang.cindex.CursorKind.CALL_EXPR: #if node is func call proceed with further checks
+                children = list(vertex.get_children())
                 if children and children[0].kind == clang.cindex.CursorKind.MEMBER_REF_EXPR:
                     base_expr = next(children[0].get_children(), None)
                     #check for pointer access
@@ -23,25 +23,25 @@ def analyze_crtp(filename):
                         called_function = children[0].get_definition()
                         if called_function is not None and called_function.is_virtual_method():
                             result.append((children[0].displayname, children[0].location.line))
-        for child in node.get_children():
-            result.extend(find_virtual_function_calls(child, filename))
+        for child in vertex.get_children():
+            result.extend(findVirtualMethodCalls(child, filename))
         return result
 
-    def create_warnings(warnings):
+    def createWarnings(warnings):
         comment_dict = {}
         for warning in warnings:
             name, line = warning
             comment_dict[line] = f"Refactor this class using the CRTP to get rid of virtual method."
         return comment_dict
 
-    index = clang.cindex.Index.create()
+    idx = clang.cindex.Index.create()
 
-    translation_unit = index.parse(filename)
+    TU = idx.parse(filename)
 
-    tu_cursor = translation_unit.cursor
-    virtual_funcs = find_virtual_functions(tu_cursor, filename)
-    virtual_func_calls = find_virtual_function_calls(tu_cursor, filename)
+    tu_cursor = TU.cursor
+    virtual_funcs = findVirtualMethods(tu_cursor, filename)
+    virtual_func_calls = findVirtualMethodCalls(tu_cursor, filename)
 
     warnings = virtual_funcs + virtual_func_calls
 
-    return create_warnings(warnings)
+    return createWarnings(warnings)

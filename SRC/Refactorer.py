@@ -166,13 +166,13 @@ class Refactor:
 
         # Mapping from method names to their definitions
         definitions = {}
-        for cursor in tu_cpp.cursor.walk_preorder():
-            if cursor.location.file is None or cursor.location.file.name != cpp_file:
+        for ptr in tu_cpp.cursor.walk_preorder():
+            if ptr.location.file is None or ptr.location.file.name != cpp_file:
                 continue
-            if (cursor.kind == CursorKind.CXX_METHOD or cursor.kind == CursorKind.CONSTRUCTOR) and cursor.is_definition():
-                class_name = cursor.semantic_parent.spelling
-                method_name = cursor.spelling
-                code = self._get_code(cursor).replace("\n", "\n\t")
+            if (ptr.kind == CursorKind.CXX_METHOD or ptr.kind == CursorKind.CONSTRUCTOR) and ptr.is_definition():
+                class_name = ptr.semantic_parent.spelling
+                method_name = ptr.spelling
+                code = self._get_code(ptr).replace("\n", "\n\t")
                 definitions[(class_name, method_name)] = code
 
         # Write the class declaration to the output file
@@ -186,31 +186,31 @@ class Refactor:
                 for line in h_f:
                     if line.startswith('#include'):
                         print(line.strip(), file=f)
-            for cursor in tu_h.cursor.walk_preorder():
-                if cursor.location.file is None or cursor.location.file.name != h_file:
+            for ptr in tu_h.cursor.walk_preorder():
+                if ptr.location.file is None or ptr.location.file.name != h_file:
                     continue
-                if cursor.kind == CursorKind.CLASS_DECL:
+                if ptr.kind == CursorKind.CLASS_DECL:
                     if bracket_open:
                         print("\n};", file=f)
-                    class_name = cursor.spelling
+                    class_name = ptr.spelling
                     print(f"\nclass {class_name}", end='', file=f)
-                    for c in cursor.get_children():
-                        if c.kind == CursorKind.CXX_BASE_SPECIFIER:
-                            base_class_name = c.type.spelling
-                            access_specifier = access_specifier_map[c.access_specifier].replace(':', '')
+                    for kid in ptr.get_children():
+                        if kid.kind == CursorKind.CXX_BASE_SPECIFIER:
+                            base_class_name = kid.type.spelling
+                            access_specifier = access_specifier_map[kid.access_specifier].replace(':', '')
                             print(f" : {access_specifier} {base_class_name}", end='', file=f)
                     print(" {", file=f)
                     bracket_open = True
-                elif cursor.kind == CursorKind.CXX_ACCESS_SPEC_DECL:
-                    print(access_specifier_map[cursor.access_specifier], file=f)
-                elif cursor.kind == CursorKind.FIELD_DECL:
-                    print("\t" + cursor.type.spelling + " " + cursor.spelling + ';', file=f)
-                elif cursor.kind == CursorKind.CXX_METHOD or cursor.kind == CursorKind.CONSTRUCTOR:
+                elif ptr.kind == CursorKind.CXX_ACCESS_SPEC_DECL:
+                    print(access_specifier_map[ptr.access_specifier], file=f)
+                elif ptr.kind == CursorKind.FIELD_DECL:
+                    print("\t" + ptr.type.spelling + " " + ptr.spelling + ';', file=f)
+                elif ptr.kind == CursorKind.CXX_METHOD or ptr.kind == CursorKind.CONSTRUCTOR:
                     space = "\t"
-                    if cursor.is_virtual_method():
+                    if ptr.is_virtual_method():
                         print("\t virtual", end = ' ', file=f)
                         space = ""
-                    print(space + definitions[(class_name, cursor.spelling)].replace(class_name + "::", ""), file=f)
+                    print(space + definitions[(class_name, ptr.spelling)].replace(class_name + "::", ""), file=f)
             
             if bracket_open:
                 print("\n};", file=f)
