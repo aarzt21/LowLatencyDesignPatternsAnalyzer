@@ -3,7 +3,7 @@
 ## Prerequisite
 For learning about the low-latency design patterns and
 seeing a detailed demonstration of the application, please
-read my thesis beforehand: 
+read my thesis beforehand: https://github.com/aarzt21/ImperialThesis
 
 ## Installation
 
